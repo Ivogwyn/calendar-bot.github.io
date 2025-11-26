@@ -310,12 +310,19 @@
 
         function confirmSelection() {
             if (selectedDate) {
-                // ВАЖНО: Отправляем данные в формате, который ожидает бот
-                Telegram.WebApp.sendData(JSON.stringify({
+                const data = {
                     date: formatDate(selectedDate),
                     timestamp: selectedDate.getTime(),
                     iso: selectedDate.toISOString()
-                }));
+                };
+
+                console.log('Отправка данных:', data);
+                Telegram.WebApp.sendData(JSON.stringify(data));
+
+                // Закрываем Web App после отправки
+                setTimeout(() => {
+                    Telegram.WebApp.close();
+                }, 100);
             } else {
                 alert('Пожалуйста, выберите дату');
             }
