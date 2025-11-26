@@ -310,6 +310,7 @@
 
         function confirmSelection() {
             if (selectedDate) {
+                // ВАЖНО: Отправляем данные в формате, который ожидает бот
                 Telegram.WebApp.sendData(JSON.stringify({
                     date: formatDate(selectedDate),
                     timestamp: selectedDate.getTime(),
