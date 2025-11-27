@@ -206,18 +206,6 @@
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
 
-        // Основная функция для отправки даты в бот
-        function sendDateToBot(dateStr) {
-            if (window.Telegram && Telegram.WebApp) {
-                // Закрываем Web App
-                Telegram.WebApp.close();
-
-                // Возвращаем успешный результат
-                return true;
-            }
-            return false;
-        }
-
         function initCalendar() {
             updateCalendarTitle();
             renderCalendar();
@@ -325,27 +313,26 @@
             if (selectedDate) {
                 const formattedDate = formatDate(selectedDate);
 
-                console.log('Выбрана дата:', formattedDate);
+                // Отправляем данные в правильном JSON формате
+                const data = {
+                    date: formattedDate
+                };
 
-                // Показываем уведомление
-                Telegram.WebApp.showPopup({
-                    title: 'Дата выбрана',
-                    message: `Выбрана дата: ${formattedDate}`,
-                    buttons: [{ type: 'ok' }]
-                });
+                console.log('Отправка данных:', data);
 
-                // Отправляем дату в бот через основной интерфейс Telegram
+                // Отправляем данные в бот
                 if (window.Telegram && Telegram.WebApp && Telegram.WebApp.sendData) {
-                    Telegram.WebApp.sendData(formattedDate);
+                    Telegram.WebApp.sendData(JSON.stringify(data));
                 }
 
-                // Закрываем Web App
-                setTimeout(() => {
-                    Telegram.WebApp.close();
-                }, 1000);
-
+                // Закрываем Web App сразу
+                Telegram.WebApp.close();
             } else {
-                alert('Пожалуйста, выберите дату');
+                Telegram.WebApp.showPopup({
+                    title: 'Ошибка',
+                    message: 'Пожалуйста, выберите дату',
+                    buttons: [{ type: 'ok' }]
+                });
             }
         }
 
