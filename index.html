@@ -292,11 +292,12 @@
             font-size: 14px;
             cursor: pointer;
             text-align: center;
-            color: white;
+            color: var(--tg-theme-text-color, #ffffff); /* Используй переменную */
         }
 
         .quick-nav-button:hover {
             background: var(--tg-theme-hint-color, #e0e0e0);
+            color: var(--tg-theme-text-color, #ffffff); /* И при наведении тоже */
         }
     </style>
 </head>
