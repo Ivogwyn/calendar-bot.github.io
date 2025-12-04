@@ -31,6 +31,7 @@
             padding: 12px;
             background: var(--tg-theme-secondary-bg-color, #f0f0f0);
             border-radius: 12px;
+            position: relative;
         }
 
         .calendar-title {
@@ -38,6 +39,11 @@
             font-weight: 600;
             text-align: center;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
         }
 
         .nav-button {
@@ -161,14 +167,155 @@
         .action-button:active {
             transform: scale(0.95);
         }
+
+        /* Стили для выпадающих меню */
+        .dropdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-content {
+            background: var(--tg-theme-bg-color, #ffffff);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+        }
+
+        .dropdown-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--tg-theme-text-color, #000000);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .close-button:hover {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        }
+
+        /* Стили для выбора года и месяца */
+        .year-selector, .month-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .year-item, .month-item {
+            padding: 15px 5px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .year-item:hover, .month-item:hover {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        }
+
+        .year-item.selected, .month-item.selected {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .dropdown-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dropdown-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dropdown-confirm {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .dropdown-cancel {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        /* Стили для быстрого перехода */
+        .quick-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-nav-button {
+            flex: 1;
+            padding: 10px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .quick-nav-button:hover {
+            background: var(--tg-theme-hint-color, #e0e0e0);
+        }
     </style>
 </head>
 <body>
     <div class="calendar">
         <div class="calendar-header">
             <button class="nav-button" onclick="changeMonth(-1)">‹</button>
-            <div class="calendar-title" id="calendarTitle"></div>
+            <div class="calendar-title" id="calendarTitle" onclick="showDateSelector()">
+                <span id="currentMonth"></span>
+                <span id="currentYear"></span>
+                <span style="font-size: 14px;">▼</span>
+            </div>
             <button class="nav-button" onclick="changeMonth(1)">›</button>
+        </div>
+
+        <!-- Быстрый переход -->
+        <div class="quick-nav">
+            <button class="quick-nav-button" onclick="goToToday()">Сегодня</button>
+            <button class="quick-nav-button" onclick="goToNextMonth()">След. месяц</button>
+            <button class="quick-nav-button" onclick="showYearSelector()">Выбрать год</button>
         </div>
 
         <div class="week-days">
@@ -193,13 +340,49 @@
         </div>
     </div>
 
+    <!-- Окно выбора года и месяца -->
+    <div class="dropdown-overlay" id="dateSelector" style="display: none;">
+        <div class="dropdown-content">
+            <div class="dropdown-header">
+                <div class="dropdown-title">Выберите месяц и год</div>
+                <button class="close-button" onclick="hideDateSelector()">×</button>
+            </div>
+
+            <div class="quick-nav">
+                <button class="quick-nav-button" onclick="setCurrentYear()">Текущий год</button>
+                <button class="quick-nav-button" onclick="changeYear(-1)">-1 год</button>
+                <button class="quick-nav-button" onclick="changeYear(1)">+1 год</button>
+            </div>
+
+            <div class="year-selector" id="yearSelector">
+                <!-- Годы будут добавлены через JS -->
+            </div>
+
+            <div class="month-selector" id="monthSelector">
+                <!-- Месяцы будут добавлены через JS -->
+            </div>
+
+            <div class="dropdown-actions">
+                <button class="dropdown-button dropdown-cancel" onclick="hideDateSelector()">Отмена</button>
+                <button class="dropdown-button dropdown-confirm" onclick="applyDateSelection()">Применить</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentDate = new Date();
         let selectedDate = null;
+        let tempYear = currentDate.getFullYear();
+        let tempMonth = currentDate.getMonth();
 
         const monthNames = [
             'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+
+        const shortMonthNames = [
+            'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+            'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'
         ];
 
         // Инициализация Telegram Web App
@@ -213,8 +396,11 @@
         }
 
         function updateCalendarTitle() {
-            const title = document.getElementById('calendarTitle');
-            title.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            const monthElement = document.getElementById('currentMonth');
+            const yearElement = document.getElementById('currentYear');
+
+            monthElement.textContent = monthNames[currentDate.getMonth()];
+            yearElement.textContent = currentDate.getFullYear();
         }
 
         function renderCalendar() {
@@ -307,6 +493,101 @@
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
             return `${day}.${month}.${year}`;
+        }
+
+        // Функции для удобной навигации
+        function showDateSelector() {
+            tempYear = currentDate.getFullYear();
+            tempMonth = currentDate.getMonth();
+            renderYearSelector();
+            renderMonthSelector();
+            document.getElementById('dateSelector').style.display = 'flex';
+        }
+
+        function hideDateSelector() {
+            document.getElementById('dateSelector').style.display = 'none';
+        }
+
+        function showYearSelector() {
+            tempYear = currentDate.getFullYear();
+            renderYearSelector();
+            document.getElementById('dateSelector').style.display = 'flex';
+        }
+
+        function renderYearSelector() {
+            const yearSelector = document.getElementById('yearSelector');
+            yearSelector.innerHTML = '';
+
+            const currentYear = new Date().getFullYear();
+
+            // Показываем 5 лет до и 5 лет после выбранного года
+            for (let i = tempYear - 5; i <= tempYear + 5; i++) {
+                const yearItem = document.createElement('div');
+                yearItem.className = 'year-item';
+                if (i === tempYear) {
+                    yearItem.classList.add('selected');
+                }
+                if (i === currentYear) {
+                    yearItem.style.fontWeight = 'bold';
+                }
+                yearItem.textContent = i;
+                yearItem.onclick = () => {
+                    tempYear = i;
+                    renderYearSelector();
+                    renderMonthSelector();
+                };
+                yearSelector.appendChild(yearItem);
+            }
+        }
+
+        function renderMonthSelector() {
+            const monthSelector = document.getElementById('monthSelector');
+            monthSelector.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const monthItem = document.createElement('div');
+                monthItem.className = 'month-item';
+                if (i === tempMonth) {
+                    monthItem.classList.add('selected');
+                }
+                monthItem.textContent = shortMonthNames[i];
+                monthItem.onclick = () => {
+                    tempMonth = i;
+                    renderMonthSelector();
+                };
+                monthSelector.appendChild(monthItem);
+            }
+        }
+
+        function applyDateSelection() {
+            currentDate = new Date(tempYear, tempMonth, 1);
+            updateCalendarTitle();
+            renderCalendar();
+            hideDateSelector();
+        }
+
+        function changeYear(direction) {
+            tempYear += direction;
+            renderYearSelector();
+        }
+
+        function setCurrentYear() {
+            tempYear = new Date().getFullYear();
+            renderYearSelector();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            updateCalendarTitle();
+            renderCalendar();
+        }
+
+        function goToNextMonth() {
+            const today = new Date();
+            today.setMonth(today.getMonth() + 1);
+            currentDate = today;
+            updateCalendarTitle();
+            renderCalendar();
         }
 
         function confirmSelection() {
